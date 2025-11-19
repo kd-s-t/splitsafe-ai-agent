@@ -1,0 +1,17 @@
+{
+  "ckbtc_ledger": {
+    "ic": "el3ll-yaaaa-aaaai-q322a-cai",
+    "local": "ohtzl-xywgo-f2ka3-aqu2f-6yzqx-ocaum-olq5r-7aaz2-ojzeh-drkxg-hqe"
+  },
+  "ckbtc_minter": {
+    "ic": "em2n7-vyaaa-aaaai-q322q-cai",
+    "local": "ohtzl-xywgo-f2ka3-aqu2f-6yzqx-ocaum-olq5r-7aaz2-ojzeh-drkxg-hqe"
+  },
+  "frontend": {
+    "ic": "ecyax-oiaaa-aaaai-q323q-cai"
+  },
+  "split_dapp": {
+    "ic": "efzgd-dqaaa-aaaai-q323a-cai",
+    "local": "uxrrr-q7777-77774-qaaaq-cai"
+  }
+}
