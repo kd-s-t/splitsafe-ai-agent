@@ -1,0 +1,67 @@
+# Remaining GitHub Actions Variables - Final Truth
+
+## ✅ ACTUALLY NEEDED (No Runtime Detection Defaults)
+
+1. **NEXT_PUBLIC_PUSHER_CLUSTER**
+   - Code uses: `process.env.VITE_PUSHER_CLUSTER` (pusher/client.ts)
+   - Default: Empty string - Pusher disabled
+   - **KEEP** - Required for real-time features
+
+2. **NEXT_PUBLIC_PUSHER_KEY**
+   - Code uses: `process.env.VITE_PUSHER_KEY` (pusher/client.ts)
+   - Default: Empty string - Pusher disabled
+   - **KEEP** - Required for real-time features
+
+3. **NEXT_RESEND_DEV_EMAIL**
+   - Code uses: `process.env.NEXT_RESEND_DEV_EMAIL` (emailService.ts)
+   - Default: None
+   - **KEEP** - Required for email functionality
+
+4. **NODE_ENV**
+   - Code uses: `process.env.NODE_ENV` (multiple files)
+   - Default: None
+   - **KEEP** - CRITICAL for production mode
+
+---
+
+## ❌ REDUNDANT (Runtime Detection or Hardcoded Defaults)
+
+1. **NEXT_PUBLIC_CANISTER_ID_SPLIT_DAPP**
+   - Code uses: `process.env.VITE_CANISTER_ID_SPLIT_DAPP`
+   - **RUNTIME DETECTION**: If NOT on localhost (i.e., production), uses hardcoded `'efzgd-dqaaa-aaaai-q323a-cai'` (splitDappNew.ts line 64-66)
+   - **Only checked if IS_LOCAL** (line 70) - in production, env var is NEVER used!
+   - **REDUNDANT** - Can remove
+
+2. **NEXT_PUBLIC_DFX_HOST**
+   - Code uses: `process.env.VITE_DFX_HOST`
+   - **RUNTIME DETECTION**: If on `.icp0.io` or `.ic0.app` domain, returns hardcoded `'https://icp0.io'` (splitDappNew.ts line 27-28)
+   - Default is `'https://icp0.io'` anyway (line 58)
+   - **REDUNDANT** - Can remove
+
+3. **NEXT_PUBLIC_ADMIN_PRINCIPAL**
+   - Code uses: `process.env.VITE_ADMIN_PRINCIPAL`
+   - Hardcoded fallback matches exactly
+   - **REDUNDANT** - Can remove
+
+4. **NEXT_PUBLIC_APP_URL**
+   - Code uses: `process.env.VITE_APP_URL`
+   - Hardcoded defaults already include 'https://thesplitsafe.com' in allowedOrigins
+   - **REDUNDANT** - Can remove
+
+5. **NEXT_PUBLIC_BLOCKSTREAM_URL**
+   - Code uses: `process.env.VITE_BLOCKSTREAM_URL`
+   - Hardcoded default: 'https://blockstream.info' matches your value
+   - **REDUNDANT** - Can remove
+
+6. **NEXT_PUBLIC_ICP_DASHBOARD_URL**
+   - NOT FOUND in source code
+   - **UNUSED** - Can remove
+
+---
+
+## Summary
+
+**Keep**: 4 variables (PUSHER_KEY, PUSHER_CLUSTER, NEXT_RESEND_DEV_EMAIL, NODE_ENV)
+**Remove**: 6 variables (CANISTER_ID, DFX_HOST have runtime detection; ADMIN_PRINCIPAL, APP_URL, BLOCKSTREAM_URL have hardcoded defaults; ICP_DASHBOARD_URL unused)
+
+The CANISTER_ID and DFX_HOST variables are ONLY used for localhost development. In production (ICP deployment), the code uses runtime detection and hardcoded values, so the env vars are never checked!

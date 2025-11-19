@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Badges</title>
+    <style>
+        .badge-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .custom-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #3B00B9;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        
+        .custom-badge:hover {
+            opacity: 0.8;
+        }
+        
+        .badge-logo {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            border-radius: 2px;
+        }
+        
+        .badge-text {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h2>Custom Badge Examples</h2>
+    
+    <div class="badge-container">
+        <!-- Motoko Badge with Custom Logo -->
+        <div class="custom-badge">
+            <img src="https://raw.githubusercontent.com/sei-protocol/sei-chain/refs/heads/main/assets/motoko.png" 
+                 alt="Motoko" 
+                 class="badge-logo">
+            <span class="badge-text">Motoko</span>
+        </div>
+        
+        <!-- SEI Badge with Custom Logo -->
+        <div class="custom-badge" style="background: #000000;">
+            <img src="https://raw.githubusercontent.com/sei-protocol/sei-chain/refs/heads/main/assets/SeiLogo.png" 
+                 alt="SEI" 
+                 class="badge-logo">
+            <span class="badge-text">SEI</span>
+        </div>
+        
+        <!-- OpenAI Badge with Custom Logo -->
+        <div class="custom-badge" style="background: #74aa9c;">
+            <img src="https://raw.githubusercontent.com/sei-protocol/sei-chain/refs/heads/main/assets/openai.png" 
+                 alt="OpenAI" 
+                 class="badge-logo">
+            <span class="badge-text">OpenAI</span>
+        </div>
+    </div>
+    
+    <h3>HTML Code for README.md:</h3>
+    <pre><code>&lt;div align="center"&gt;
+  &lt;img src="https://img.shields.io/badge/ICP-000000?style=for-the-badge&logo=internet-computer&logoColor=white" /&gt;
+  &lt;img src="https://img.shields.io/badge/bitcoin-2F3134?style=for-the-badge&logo=bitcoin&logoColor=white" /&gt;
+  &lt;img src="https://img.shields.io/badge/SEI-000000?style=for-the-badge&logo=sei&logoColor=white" /&gt;
+  &lt;img src="https://img.shields.io/badge/Motoko-3B00B9?style=for-the-badge" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Custom Badges with Images --&gt;
+&lt;div align="center" style="margin-top: 10px;"&gt;
+  &lt;a href="#" style="display: inline-flex; align-items: center; background: #3B00B9; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; text-decoration: none; margin: 0 5px;"&gt;
+    &lt;img src="https://raw.githubusercontent.com/sei-protocol/sei-chain/refs/heads/main/assets/motoko.png" alt="Motoko" style="width: 16px; height: 16px; margin-right: 6px; border-radius: 2px;"&gt;
+    Motoko
+  &lt;/a&gt;
+  &lt;a href="#" style="display: inline-flex; align-items: center; background: #000000; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; text-decoration: none; margin: 0 5px;"&gt;
+    &lt;img src="https://raw.githubusercontent.com/sei-protocol/sei-chain/refs/heads/main/assets/SeiLogo.png" alt="SEI" style="width: 16px; height: 16px; margin-right: 6px; border-radius: 2px;"&gt;
+    SEI
+  &lt;/a&gt;
+  &lt;a href="#" style="display: inline-flex; align-items: center; background: #74aa9c; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; text-decoration: none; margin: 0 5px;"&gt;
+    &lt;img src="https://raw.githubusercontent.com/sei-protocol/sei-chain/refs/heads/main/assets/openai.png" alt="OpenAI" style="width: 16px; height: 16px; margin-right: 6px; border-radius: 2px;"&gt;
+    OpenAI
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+</body>
+</html>
