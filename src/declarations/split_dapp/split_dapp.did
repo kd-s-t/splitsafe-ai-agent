@@ -1,0 +1,846 @@
+type WithdrawData = 
+ variant {
+   btc: record {
+          amount: nat;
+          recipientAddress: text;
+        };
+   icp: record {
+          amount: nat;
+          recipientAddress: text;
+        };
+ };
+type Voucher = 
+ record {
+   amount: nat;
+   code: text;
+   createdAt: int;
+   createdBy: principal;
+   description: text;
+   expiredAt: int;
+   id: text;
+   redeemAt: int;
+ };
+type VoidResult = 
+ variant {
+   err: ApiKeyError;
+   ok;
+ };
+type UserWithPrincipal = 
+ record {
+   "principal": principal;
+   userInfo: UserInfo;
+ };
+type UserInfo = 
+ record {
+   balance: nat;
+   email: opt text;
+   nickname: opt text;
+   picture: opt text;
+   username: opt text;
+ };
+type UsagePattern = 
+ record {
+   commonEndpoints: vec text;
+   commonIpAddresses: vec text;
+   dailyUsage: nat;
+   hourlyUsage: nat;
+   keyId: ApiKeyId;
+   lastUsed: Time;
+   suspiciousActivity: bool;
+ };
+type UsageAlert = 
+ record {
+   acknowledged: bool;
+   alertType: AlertType;
+   id: text;
+   keyId: ApiKeyId;
+   message: text;
+   severity: ActivitySeverity;
+   timestamp: Time;
+ };
+type TransferResult = 
+ variant {
+   err: text;
+   ok:
+    record {
+      amount: nat;
+      from: principal;
+      memo: opt text;
+      timestamp: nat;
+      to: principal;
+      transferId: text;
+    };
+ };
+type TransactionStatus = text;
+type TransactionKind = 
+ variant {
+   basic_escrow;
+   milestone_escrow;
+   payment_gateway;
+   withdraw;
+ };
+type Transaction = 
+ record {
+   basicData: opt BasicEscrowData;
+   cancelledAt: opt nat;
+   chatId: opt text;
+   confirmedAt: opt nat;
+   constellationHashes: vec ConstellationHashEntry;
+   createdAt: nat;
+   from: principal;
+   funds_allocated: nat;
+   id: text;
+   kind: TransactionKind;
+   milestoneData: MilestoneEscrowData;
+   readAt: opt nat;
+   refundedAt: opt nat;
+   releasedAt: opt nat;
+   status: TransactionStatus;
+   storyIpAssetId: opt text;
+   storyTxs: vec record {
+                   action: text;
+                   timestamp: nat;
+                   txHash: text;
+                 };
+   title: text;
+   withdrawData: opt WithdrawData;
+ };
+type ToEntry = 
+ record {
+   approvedAt: opt nat;
+   declinedAt: opt nat;
+   funds_allocated: nat;
+   name: text;
+   percentage: nat;
+   "principal": principal;
+   readAt: opt nat;
+   status: variant {
+             approved;
+             declined;
+             noaction;
+             pending;
+           };
+ };
+type Time = int;
+type SubmitFeedbackRequest = 
+ record {
+   email: text;
+   ipAddress: opt text;
+   message: text;
+   name: text;
+   "principal": opt principal;
+   rating: nat;
+   userAgent: opt text;
+ };
+type Subaccount = blob;
+type StoredFile = 
+ record {
+   base64Data: text;
+   fileType: FileType;
+   filename: text;
+   id: text;
+   uploadedAt: nat;
+   uploadedBy: principal;
+ };
+type SplitDApp = 
+ service {
+   addBitcoinBalance: (caller: principal, user: principal, amount: nat) ->
+    (bool);
+   addContact: (ownerPrincipal: principal, contactPrincipal: principal,
+    nickname: text) -> (variant {
+                          err: text;
+                          ok: text;
+                        });
+   adminSetBitcoinAddress: (user: principal, address: text) -> (bool);
+   canUserCreateEscrow: (user: principal) -> (bool) query;
+   cancelTransaction: (caller: principal) -> (opt Transaction);
+   cancelVoucher: (voucherId: text) -> (variant {
+                                          err: text;
+                                          ok: text;
+                                        });
+   cleanupExpiredKeys: () -> (Result_7);
+   clearAllFeedbacks: () -> (record {
+                               message: text;
+                               success: bool;
+                             });
+   clearUserProfile: ("principal": principal, caller: principal) -> (bool);
+   clientApprovedSignedContract: (transactionId: text, milestoneId: text,
+    recipientId: text, caller: principal) -> (Result_1);
+   clientReleaseMilestonePayment: (transactionId: text, monthNumber: 
+    nat, caller: principal) -> (Result_1);
+   convertCkBtcToIcp: (caller: principal, user: principal, ckbtcAmount:
+    nat) -> (bool);
+   convertIcpToBitcoin: (caller: principal, user: principal, icpAmount:
+    nat) -> (bool);
+   convertIcpToSei: (caller: principal, user: principal, icpAmount: nat) ->
+    (bool);
+   createApiKey: (targetPrincipal: principal, request:
+    CreateApiKeyRequest) -> (ApiKeyResult);
+   createTransaction: (caller: principal, kind: TransactionKind, request:
+    CreateTransactionRequest) -> (CreateTransactionResult);
+   createVoucher: (ownerId: principal, code: text, amount: nat, description:
+    text, expiredAt: int) -> (variant {
+                                err: text;
+                                ok: text;
+                              });
+   deleteContact: (contactId: text) -> (variant {
+                                          err: text;
+                                          ok: text;
+                                        });
+   deleteEscrowMessages: (escrowId: text) -> (bool);
+   deleteFeedback: (feedbackId: text) ->
+    (record {
+       message: text;
+       success: bool;
+     });
+   deleteFile: (fileId: text) -> (bool);
+   generateBitcoinAddress: () -> (opt text);
+   generateBitcoinAddressForUser: (user: principal) -> (opt text);
+   getAdmin: () -> (principal) query;
+   getAlerts: () -> (Result_6) query;
+   getAllFeedbacks: () -> (vec Feedback) query;
+   getAllFeedbacksAnonymous: () -> (vec Feedback) query;
+   getAllFiles: () -> (vec StoredFile) query;
+   getAllUsers: () -> (vec UserWithPrincipal) query;
+   getApiKey: (keyId: ApiKeyId) -> (ApiKeyResult);
+   getApiKeyByKey: (key: text) -> (ApiKeyResult) query;
+   getBitcoinAddress: (user: principal) -> (opt text) query;
+   getBusinessLogs: (merchantPrincipal: principal) -> (vec BusinessLog) query;
+   getCkbtcAddressAnonymous: () ->
+    (variant {
+       err: text;
+       ok: record {
+             btcAddress: text;
+             owner: principal;
+             subaccount: Subaccount;
+           };
+     });
+   getCkbtcBalance: (user: principal) -> (variant {
+                                            err: text;
+                                            ok: nat;
+                                          });
+   getCkbtcBalanceAnonymous: () -> (variant {
+                                      err: text;
+                                      ok: nat;
+                                    });
+   getContacts: (ownerId: principal) -> (vec Contact) query;
+   getEscrowsWithMessages: () -> (vec text) query;
+   getFeedbackByPrincipal: () -> (GetFeedbackByPrincipalResult) query;
+   getFeedbackCount: () -> (nat) query;
+   getFeedbackStats: () -> (FeedbackStats) query;
+   getFile: (fileId: text) -> (opt StoredFile) query;
+   getFileBase64: (fileId: text) -> (opt text) query;
+   getFileCount: () -> (nat) query;
+   getFileInfo: (fileId: text) ->
+    (opt
+      record {
+        fileType: FileType;
+        filename: text;
+        id: text;
+        uploadedAt: nat;
+        uploadedBy: principal;
+      }) query;
+   getFilesByUser: () -> (vec StoredFile) query;
+   getFraudHistory: (user: principal) -> (vec FraudActivity) query;
+   getInfo: ("principal": principal, caller: principal) ->
+    (opt UserInfo) query;
+   getKeyStats: () -> (Result_5);
+   getLatestMessage: (escrowId: text) -> (opt ChatMessage) query;
+   getMessageCount: (escrowId: text) -> (nat) query;
+   getMessages: (escrowId: text, limit: opt nat) -> (vec ChatMessage) query;
+   getMyFeedbacks: () -> (vec Feedback) query;
+   getOrCreateChat: (transactionId: text) ->
+    (record {
+       chatId: opt text;
+       error: opt text;
+       success: bool;
+     });
+   getOrRequestCkbtcWallet: () ->
+    (variant {
+       err: text;
+       ok: record {
+             btcAddress: text;
+             owner: principal;
+             subaccount: Subaccount;
+           };
+     });
+   getOrRequestSeiWallet: () ->
+    (variant {
+       err: text;
+       ok: record {
+             owner: principal;
+             seiAddress: text;
+           };
+     });
+   getOrRequestSeiWalletForUser: (user: principal) ->
+    (variant {
+       err: text;
+       ok: record {
+             owner: principal;
+             seiAddress: text;
+           };
+     });
+   getReputationStats: (user: principal) ->
+    (record {
+       canCreateEscrow: bool;
+       fraudCount: nat;
+       isFlagged: bool;
+       reputation: nat;
+     }) query;
+   getSeiAddress: (user: principal) -> (opt text) query;
+   getSeiBalance: (user: principal) -> (variant {
+                                          err: text;
+                                          ok: nat;
+                                        });
+   getSeiBalanceAnonymous: () -> (variant {
+                                    err: text;
+                                    ok: nat;
+                                  });
+   getSeiFaucetUrl: () -> (opt text) query;
+   getSeiNetworkInfo: () ->
+    (record {
+       chainId: text;
+       explorerUrl: text;
+       isTestnet: bool;
+       name: text;
+       prefix: text;
+       rpcUrl: text;
+     }) query;
+   getTransaction: (caller: principal, id: text) -> (opt Transaction);
+   getTransactionsPaginated: (p: principal, page: nat, pageSize: nat) ->
+    (record {
+       totalCount: nat;
+       totalPages: nat;
+       transactions: vec Transaction;
+     });
+   getUnreadCount: ("principal": principal) -> (nat) query;
+   getUsageHistory: (keyId: ApiKeyId) -> (Result_4) query;
+   getUsagePatterns: (keyId: ApiKeyId) -> (Result_3) query;
+   getUserBitcoinBalance: (user: principal) -> (nat) query;
+   getUserReputationScore: (user: principal) -> (nat) query;
+   getUserSeiBalance: (user: principal) -> (nat) query;
+   getUserVouchers: (ownerId: principal) -> (vec Voucher) query;
+   hasSubmittedFeedback: (ipAddress: opt text) ->
+    (HasSubmittedFeedbackResult) query;
+   hasSubmittedFeedbackByIP: (ipAddress: text) ->
+    (HasSubmittedFeedbackByIPResult) query;
+   hasSubmittedFeedbackByPrincipal: () ->
+    (HasSubmittedFeedbackByPrincipalResult) query;
+   initiateMultipleMilestones: (caller: principal, request:
+    InitiateMultipleMilestonesRequest) -> (MilestoneResult);
+   isUserFlaggedForFraud: (user: principal) -> (bool) query;
+   listApiKeys: (targetPrincipal: principal) -> (ApiKeyListResult) query;
+   listApiKeysForPrincipal: (targetPrincipal: principal) ->
+    (ApiKeyListResult);
+   logApiKeyUsage: (keyId: ApiKeyId, endpoint: text, method: text, ipAddress:
+    opt text, userAgent: opt text, success: bool, responseTime: opt nat,
+    errorCode: opt text) -> (Result_2);
+   markTransactionsAsRead: () -> ();
+   processPaymentGatewayTransfer: (from: principal, to: principal, amount:
+    nat, memo: opt text, merchantId: opt text, useSeiAcceleration: bool) ->
+    (TransferResult);
+   recipientApproveEscrow: (sender: principal, txId: text, recipient:
+    principal) -> ();
+   recipientDeclineEscrow: (sender: principal, idx: nat, recipient:
+    principal) -> ();
+   recipientSignContract: (transactionId: text, milestoneId: text,
+    recipientId: text, caller: principal, signedContractFile: text) ->
+    (Result_1);
+   redeemVoucher: (voucherCode: text, redeemer: principal) ->
+    (variant {
+       err: text;
+       ok: text;
+     });
+   refundSplit: (caller: principal) -> ();
+   releaseBasicEscrow: (caller: principal, txId: text) -> (opt Transaction);
+   removeBitcoinAddress: () -> (bool);
+   removeSeiAddress: () -> (bool);
+   requestCkbtcWallet: () ->
+    (variant {
+       err: text;
+       ok: record {
+             btcAddress: text;
+             owner: principal;
+             subaccount: Subaccount;
+           };
+     });
+   requestSeiWalletAnonymous: () ->
+    (variant {
+       err: text;
+       ok: record {
+             owner: principal;
+             seiAddress: text;
+           };
+     });
+   resetUserReputation: (user: principal, caller: principal) -> ();
+   revokeApiKey: (keyId: ApiKeyId) -> (VoidResult);
+   saveInfo: ("principal": principal, request: SaveInfoRequest) -> ();
+   searchContacts: (ownerId: principal, searchQuery: text) ->
+    (vec Contact) query;
+   searchMessages: (escrowId: text, searchQuery: text) ->
+    (vec ChatMessage) query;
+   sendMessage: (chatId: text, message: text, senderName: text) ->
+    (ChatMessageResult);
+   setBitcoinAddress: (address: text) -> (bool);
+   setBitcoinBalance: (caller: principal, user: principal, amount: nat) ->
+    (bool);
+   setInitialBalance: (p: principal, amount: nat, caller: principal) -> ();
+   setSeiAddress: (address: text) -> (bool);
+   shouldShowFeedback: (transactionCount: opt nat) ->
+    (ShouldShowFeedbackResult) query;
+   storeConstellationHash: (escrowId: text, action: text, hash: text,
+    _caller: principal) -> (variant {
+                              err: text;
+                              ok: text;
+                            });
+   storeStoryRegistration: (escrowId: text, ipAssetId: text, txHash: 
+    text, _caller: principal) -> (variant {
+                                    err: text;
+                                    ok: text;
+                                  });
+   storeStoryTx: (escrowId: text, action: text, txHash: text, _caller:
+    principal) -> (variant {
+                     err: text;
+                     ok: text;
+                   });
+   submitFeedback: (request: SubmitFeedbackRequest) -> (FeedbackResult);
+   submitProofOfWork: (milestoneId: text, recipientId: text, caller:
+    principal, monthNumber: nat, description: text, screenshots: vec text,
+    files: vec text) -> (Result_1);
+   updateApiKeyPermissions: (keyId: ApiKeyId, permissions: vec Permission) ->
+    (VoidResult);
+   updateContact: (contactId: text, newNickname: text) ->
+    (variant {
+       err: text;
+       ok: text;
+     });
+   updateEscrow: (_txId: text, _updatedParticipants: vec ParticipantShare) ->
+    ();
+   updateVoucher: (voucherId: text, description: text, expiredAt: int) ->
+    (variant {
+       err: text;
+       ok: text;
+     });
+   uploadFile: (filename: text, fileType: FileType, base64Data: text) ->
+    (text);
+   validateApiKey: (key: text, requiredPermission: Permission) -> (Result);
+   withdrawBtc: (amount: nat, recipientAddress: text) ->
+    (variant {
+       err: text;
+       ok: text;
+     });
+   withdrawIcp: (amount: nat, recipientAddress: text) ->
+    (variant {
+       err: text;
+       ok: text;
+     });
+ };
+type ShouldShowFeedbackResult = 
+ variant {
+   err: text;
+   ok: bool;
+ };
+type SaveInfoRequest = 
+ record {
+   email: opt text;
+   nickname: opt text;
+   picture: opt text;
+   username: opt text;
+ };
+type Result_7 = 
+ variant {
+   err: ApiKeyError;
+   ok: nat;
+ };
+type Result_6 = 
+ variant {
+   err: ApiKeyError;
+   ok: vec UsageAlert;
+ };
+type Result_5 = 
+ variant {
+   err: ApiKeyError;
+   ok: record {
+         activeKeys: nat;
+         revokedKeys: nat;
+         totalKeys: nat;
+       };
+ };
+type Result_4 = 
+ variant {
+   err: ApiKeyError;
+   ok: vec ApiKeyUsage;
+ };
+type Result_3 = 
+ variant {
+   err: ApiKeyError;
+   ok: UsagePattern;
+ };
+type Result_2 = 
+ variant {
+   err: ApiKeyError;
+   ok;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok;
+ };
+type Result = 
+ variant {
+   err: ApiKeyError;
+   ok: principal;
+ };
+type ReleasePayment = 
+ record {
+   id: nat;
+   monthNumber: nat;
+   recipientPayments: vec RecipientPayment;
+   releasedAt: opt nat;
+   total: nat;
+ };
+type RecipientPayment = 
+ record {
+   amount: nat;
+   recipientId: text;
+   recipientName: text;
+ };
+type PhoneNumber = 
+ record {
+   country: text;
+   number: text;
+ };
+type Permission = 
+ variant {
+   admin;
+   escrow_create;
+   escrow_delete;
+   escrow_read;
+   escrow_update;
+   milestone_release;
+   webhook_manage;
+ };
+type PaymentStatus = 
+ variant {
+   cancelled;
+   completed;
+   failed;
+   pending;
+ };
+type ParticipantShare = 
+ record {
+   amount: nat;
+   nickname: text;
+   percentage: nat;
+   "principal": principal;
+ };
+type MonthlyProofOfWork = 
+ record {
+   approvedAt: opt nat;
+   description: opt text;
+   fileIds: vec text;
+   monthNumber: nat;
+   screenshotIds: vec text;
+   submittedAt: opt nat;
+ };
+type MilestoneResult = 
+ variant {
+   err: text;
+   ok: record {
+         milestoneId: text;
+         transactionId: text;
+       };
+ };
+type MilestoneRecipientRequest = 
+ record {
+   id: text;
+   name: text;
+   "principal": principal;
+   share: nat;
+ };
+type MilestoneRecipient = 
+ record {
+   approvedAt: opt nat;
+   billingAddress: opt text;
+   declinedAt: opt nat;
+   email: opt text;
+   id: text;
+   monthlyProofOfWork: vec MonthlyProofOfWork;
+   name: text;
+   phone: opt PhoneNumber;
+   "principal": principal;
+   share: nat;
+ };
+type MilestoneFrequency = variant {day: nat;};
+type MilestoneEscrowRecipient = 
+ record {
+   clientApprovedSignedContractAt: opt nat;
+   id: text;
+   name: text;
+   "principal": principal;
+   signedContractAt: opt nat;
+   signedContractFileId: opt text;
+ };
+type MilestoneEscrowData = 
+ record {
+   clientApprovedSignedAt: opt nat;
+   contractFileId: opt text;
+   contractSigningDateBefore: opt nat;
+   milestones: vec Milestone;
+   recipients: vec MilestoneEscrowRecipient;
+ };
+type Milestone = 
+ record {
+   allocation: nat;
+   coin: text;
+   createdAt: nat;
+   duration: nat;
+   endDate: nat;
+   frequency: MilestoneFrequency;
+   id: text;
+   recipients: vec MilestoneRecipient;
+   releasePayments: vec ReleasePayment;
+   startDate: nat;
+   title: text;
+ };
+type InitiateMultipleMilestonesRequest = 
+ record {
+   contractFile: opt text;
+   milestones: vec InitiateMilestoneRequest;
+   title: text;
+ };
+type InitiateMilestoneRequest = 
+ record {
+   allocation: nat;
+   coin: text;
+   contractFile: opt text;
+   contractSigningPeriod: opt nat;
+   duration: nat;
+   frequency: MilestoneFrequency;
+   recipients: vec MilestoneRecipientRequest;
+   startDate: nat;
+   title: text;
+ };
+type HasSubmittedFeedbackResult = 
+ variant {
+   err: text;
+   ok: bool;
+ };
+type HasSubmittedFeedbackByPrincipalResult = 
+ variant {
+   err: text;
+   ok: bool;
+ };
+type HasSubmittedFeedbackByIPResult = 
+ variant {
+   err: text;
+   ok: bool;
+ };
+type GetFeedbackByPrincipalResult = 
+ variant {
+   err: text;
+   ok: opt Feedback;
+ };
+type FraudActivity = 
+ record {
+   activityType: text;
+   timestamp: int;
+   transactionId: text;
+ };
+type FileType = 
+ variant {
+   doc;
+   docx;
+   jpeg;
+   jpg;
+   other;
+   pdf;
+   png;
+   svg;
+   txt;
+ };
+type FeedbackStats = 
+ record {
+   averageRating: float64;
+   totalCount: nat;
+ };
+type FeedbackResult = 
+ variant {
+   err: text;
+   ok: text;
+ };
+type Feedback = 
+ record {
+   id: text;
+   ipAddress: opt text;
+   message: text;
+   name: text;
+   rating: nat;
+   submittedBy: opt principal;
+   timestamp: int;
+   userAgent: opt text;
+ };
+type CreateWithdrawRequest = record {withdrawData: WithdrawData;};
+type CreateTransactionResult = 
+ variant {
+   err: text;
+   ok:
+    record {
+      amount: opt nat;
+      recipientCount: opt nat;
+      recipients: opt vec ParticipantShare;
+      title: opt text;
+      transactionId: text;
+    };
+ };
+type CreateTransactionRequest = 
+ variant {
+   basic_escrow: CreateBasicEscrowRequest;
+   payment_gateway: CreatePaymentGatewayRequest;
+   withdraw: CreateWithdrawRequest;
+ };
+type CreatePaymentGatewayRequest = 
+ record {
+   amount: nat;
+   memo: opt text;
+   merchantId: opt text;
+   to: principal;
+   useSeiAcceleration: bool;
+ };
+type CreateBasicEscrowRequest = 
+ record {
+   participants: vec ParticipantShare;
+   title: text;
+   useSeiAcceleration: bool;
+ };
+type CreateApiKeyRequest = 
+ record {
+   name: text;
+   permissions: vec Permission;
+ };
+type Contact = 
+ record {
+   createdAt: nat;
+   id: text;
+   nickname: text;
+   ownerId: principal;
+   principalid: principal;
+   updatedAt: opt nat;
+ };
+type ConstellationHashEntry = 
+ record {
+   action: text;
+   hash: text;
+   timestamp: nat;
+ };
+type ChatMessageResult = 
+ record {
+   error: opt text;
+   messageId: opt text;
+   success: bool;
+ };
+type ChatMessage = 
+ record {
+   chatId: text;
+   id: text;
+   message: text;
+   senderAt: int;
+   senderName: text;
+   senderPrincipalId: principal;
+ };
+type BusinessLog = 
+ record {
+   amount: nat;
+   completedAt: opt nat;
+   createdAt: nat;
+   fee: nat;
+   from: principal;
+   memo: opt text;
+   merchantId: opt text;
+   status: PaymentStatus;
+   to: principal;
+   transactionId: text;
+ };
+type BasicEscrowData = 
+ record {
+   to: vec ToEntry;
+   useSeiAcceleration: bool;
+ };
+type ApiKeyUsage = 
+ record {
+   endpoint: text;
+   errorCode: opt text;
+   id: text;
+   ipAddress: opt text;
+   keyId: ApiKeyId;
+   method: text;
+   responseTime: opt nat;
+   success: bool;
+   timestamp: Time;
+   userAgent: opt text;
+ };
+type ApiKeyStatus = 
+ variant {
+   active;
+   expired;
+   revoked;
+ };
+type ApiKeyResult = 
+ variant {
+   err: ApiKeyError;
+   ok: ApiKeyResponse;
+ };
+type ApiKeyResponse = 
+ record {
+   createdAt: Time;
+   expiresAt: opt Time;
+   id: ApiKeyId;
+   key: text;
+   lastUsed: opt Time;
+   lastUsedFrom: opt text;
+   name: text;
+   owner: principal;
+   permissions: vec Permission;
+   revokedAt: opt Time;
+   status: ApiKeyStatus;
+   usageCount: nat;
+ };
+type ApiKeyListResult = 
+ variant {
+   err: ApiKeyError;
+   ok: ApiKeyListResponse;
+ };
+type ApiKeyListResponse = 
+ record {
+   keys: vec ApiKeyResponse;
+   total: nat;
+ };
+type ApiKeyId = text;
+type ApiKeyError = 
+ variant {
+   invalid_key_format;
+   invalid_permissions;
+   key_already_exists;
+   key_expired;
+   not_found;
+   rate_limit_exceeded;
+   suspicious_activity;
+   unauthorized;
+   usage_limit_exceeded;
+ };
+type AlertType = 
+ variant {
+   failed_authentication;
+   key_compromise_suspected;
+   new_ip_address;
+   unusual_pattern;
+   usage_spike;
+ };
+type ActivitySeverity = 
+ variant {
+   critical;
+   high;
+   low;
+   medium;
+ };
+service : (admin: principal, _ckbtcLedgerId: text, _ckbtcMinterId: text) -> SplitDApp
